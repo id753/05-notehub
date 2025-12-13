@@ -6,6 +6,9 @@ import NoteList from "./components/NoteList/NoteList";
 import css from "./styles/App.module.css";
 import Loader from "./components/Loader/Loader";
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+// import ReactPaginate from "react-paginate";
+import Pagination from "./components/Pagination/Pagination";
+import NoteForm from "./components/NoteForm/NoteForm";
 
 export interface Note {
   id: number;
@@ -21,7 +24,7 @@ export interface NoteHttpResponse {
   totalPages: number;
 }
 
-interface NoteData {
+export interface NoteData {
   notes: Note[];
   totalPages: number;
 }
@@ -44,6 +47,8 @@ function App() {
         },
       }
     );
+    // console.log("Notes from API:", response.data.notes.length);
+    // console.log("Total pages:", response.data.totalPages);
 
     return {
       notes: response.data.notes,
@@ -68,11 +73,17 @@ function App() {
   });
 
   const notes: Note[] = noteData.notes;
-
+  const totalPages: number = noteData.totalPages;
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        {/* Здесь будет только Пагинация */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </header>
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
@@ -81,6 +92,7 @@ function App() {
       ) : (
         <p>Заметки не найдены.</p>
       )}
+      <NoteForm />
     </div>
   );
 }
