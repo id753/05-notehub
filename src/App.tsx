@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import axios from "axios";
 import "./App.css";
 import NoteList from "./components/NoteList/NoteList";
 import css from "./styles/App.module.css";
@@ -8,7 +7,11 @@ import Loader from "./components/Loader/Loader";
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
 // import ReactPaginate from "react-paginate";
 import Pagination from "./components/Pagination/Pagination";
-import NoteForm from "./components/NoteForm/NoteForm";
+// import NoteForm from "./components/NoteForm/NoteForm";
+import Modal from "./components/Modal/Modal";
+import { fetchNotes, type NoteData } from "./services/noteService";
+import { useDebouncedCallback } from "use-debounce";
+import SearchBox from "./components/SearchBox/SearchBox";
 
 export interface Note {
   id: number;
@@ -19,42 +22,13 @@ export interface Note {
   tag: string;
 }
 
-export interface NoteHttpResponse {
-  notes: Note[];
-  totalPages: number;
-}
-
-export interface NoteData {
-  notes: Note[];
-  totalPages: number;
-}
-
 function App() {
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
 
-  // Функция запроса данных
-  const fetchNotes = async (page: number): Promise<NoteData> => {
-    const response = await axios.get<NoteHttpResponse>(
-      "https://notehub-public.goit.study/api/notes",
-      {
-        params: {
-          page: page,
-          perPage: 10,
-        },
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_NOTE_TOKEN}`,
-        },
-      }
-    );
-    // console.log("Notes from API:", response.data.notes.length);
-    // console.log("Total pages:", response.data.totalPages);
-
-    return {
-      notes: response.data.notes,
-      totalPages: response.data.totalPages,
-    };
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const initialNoteData: NoteData = {
     notes: [],
@@ -67,16 +41,26 @@ function App() {
     isLoading,
     isError,
   } = useQuery<NoteData>({
-    queryKey: ["notes", currentPage],
-    queryFn: () => fetchNotes(currentPage),
+    queryKey: ["notes", currentPage, search],
+    queryFn: () => fetchNotes(currentPage, search),
     placeholderData: keepPreviousData,
   });
 
   const notes: Note[] = noteData.notes;
   const totalPages: number = noteData.totalPages;
+
+  const debounceSearch = useDebouncedCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(event.target.value.toLowerCase());
+      setCurrentPage(1);
+    },
+    300
+  );
+
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
+        <SearchBox search={search} onChange={debounceSearch} />
         {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
@@ -84,6 +68,9 @@ function App() {
             onPageChange={setCurrentPage}
           />
         )}
+        <button className={css.button} onClick={openModal}>
+          Create note +
+        </button>
       </header>
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
@@ -92,7 +79,9 @@ function App() {
       ) : (
         <p>Заметки не найдены.</p>
       )}
-      <NoteForm />
+      {isModalOpen && (
+        <Modal onClose={closeModal} onPageChange={setCurrentPage} />
+      )}
     </div>
   );
 }

@@ -1,33 +1,57 @@
 import { useId } from "react";
 import css from "./NoteForm.module.css";
 import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote, type CreateNoteData } from "../../services/noteService";
+import * as Yup from "yup";
 
-interface OrderFormValues {
-  title: string;
-  content: string;
-  tag: "Shopping" | "Meeting" | "Personal" | "Work" | "Todo";
+interface NoteFormProps {
+  onClose: () => void;
+  onPageChange: (page: number) => void;
 }
 
-const NoteForm = () => {
-  const initialValues: OrderFormValues = {
-    title: "",
-    content: "",
-    tag: "Todo",
-  };
+const initialValues: CreateNoteData = {
+  title: "",
+  content: "",
+  tag: "Todo",
+};
+
+const NoteForm = ({ onClose, onPageChange }: NoteFormProps) => {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onClose();
+      onPageChange(1);
+    },
+  });
 
   const handleSubmit = (
-    values: OrderFormValues,
-    actions: FormikHelpers<OrderFormValues>
+    values: CreateNoteData,
+    actions: FormikHelpers<CreateNoteData>
   ) => {
-    console.log("Form submitted:", values);
+    mutate(values);
     actions.resetForm();
   };
   const fieldId = useId();
 
+  const validationSchema = Yup.object().shape({
+    title: Yup.string()
+      .min(3, "Title too short")
+      .max(50, "Title too long")
+      .required("Title is required"),
+    content: Yup.string().max(500, "Content too long"),
+    tag: Yup.string()
+      .oneOf(["Shopping", "Meeting", "Personal", "Work", "Todo"], "Invalid tag")
+      .required("Tag is required"),
+  });
+
   return (
     <Formik
       initialValues={initialValues}
-      // validationSchema={validationSchema}
+      validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       <Form className={css.form}>
@@ -72,10 +96,14 @@ const NoteForm = () => {
         </div>
 
         <div className={css.actions}>
-          <button type="button" className={css.cancelButton}>
+          <button onClick={onClose} type="button" className={css.cancelButton}>
             Cancel
           </button>
-          <button type="submit" className={css.submitButton}>
+          <button
+            type="submit"
+            disabled={isPending}
+            className={css.submitButton}
+          >
             Create note
           </button>
         </div>
