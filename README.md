@@ -1,73 +1,17 @@
 # React + TypeScript + Vite
+# Додаток NoteHub </br>
+Застосунок для зберігання, створення, видалення та пошуку нотаток.</br>
+Розгорнуто на Vercel.</br>
+Проєкт створено за допомогою Vite.</br>
+Всі події в колбеках компонентів типізовані.</br>
+Для виконання HTTP-запитів використано бібліотеку axios.</br>
+TypeScript-код має бути чистим, зрозумілим і відформатованим за допомогою Prettier.</br>
+Стилізація виконується за допомогою CSS-модулів.</br>
+Використовується modern-normalize для уніфікації стилів у різних браузерах.</br>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Для отримання списку нотаток з бекенда, всіх інших запитах по роботі з колекцією нотаток та збереження серверних даних використано TanStack Query.</br>
+Реалізовано компонент Pagination з використанням бібліотеки React Paginate.</br>
+Для керування станом форми, валідації та обробки сабміту слід використано бібліотеку Formik.</br>
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Додай валідацію значень полів форми за допомогою Yup.</br>
+Відкладений пошук з use-debounce, щоб не виконувати запит на кожний введений символ.</br>
